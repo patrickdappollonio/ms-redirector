@@ -13,7 +13,7 @@ var (
 	reIsBlogpost    = regexp.MustCompile(`^\/\d+\-(\w|\-)+\/?$`)
 	reIsNewBlogpost = regexp.MustCompile(`^\/(\w|\-)+\/\d+\/?$`)
 	reIsKeyword     = regexp.MustCompile(`^\/(clave|tags)\/(\w|\-)+\/?$`)
-	reIsSearch      = regexp.MustCompile(`^\/q\/(\w|\-|\+)+\/?$`)
+	reIsSearch      = regexp.MustCompile(`^\/(q|busqueda)\/.+\/?$`)
 )
 
 func init() {
@@ -36,7 +36,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		redirToSearch(w, strings.Trim(p, "/"))
 
 	default:
-		permanent(w, fmt.Sprintf("%s/", base))
+		temporary(w, fmt.Sprintf("%s/", base))
 	}
 }
 
@@ -68,7 +68,7 @@ func redirToTag(w http.ResponseWriter, path string) {
 	// remove the prefixes that are common from these
 	// old paths in the blog
 	path = strings.TrimPrefix(path, "clave/")
-	path = strings.TrimSuffix(path, "tags/")
+	path = strings.TrimPrefix(path, "tags/")
 
 	// construct the URL
 	permanent(w, fmt.Sprintf("%s/tema/%s/", base, path))
@@ -82,6 +82,7 @@ func redirToSearch(w http.ResponseWriter, path string) {
 	// also remove all the plusses in the querystring
 	// and remove any dash too
 	path = strings.TrimPrefix(path, "q/")
+	path = strings.TrimPrefix(path, "busqueda/")
 	path = strings.Replace(path, "+", " ", -1)
 
 	// construct the URL
